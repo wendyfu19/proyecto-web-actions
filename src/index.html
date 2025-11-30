@@ -40,6 +40,41 @@ COPY src/index.html /usr/share/nginx/html/index.html
 
 EXPOSE 80
     </pre>
+    <pre>
+name: Deploy a Kubernetes
+
+on:
+  workflow_run:
+    workflows: ["CI-CD Docker Web"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar kubectl
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+
+      - name: Reemplazar imagen en deployment
+        run: |
+          VERSION="${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_commit.id || 'latest' }}"
+          # Alternativa más segura: pasar versión como output desde el workflow CI
+          VERSION="v0.0.1"
+          echo "Usando version..: $VERSION"
+          sed -i "s|__IMAGE_PLACEHOLDER__|${{ secrets.DOCKERHUB_USERNAME }}/miweb:$VERSION|g" k8s/deployment.yaml
+
+      - name: Aplicar Manifiestos
+        run: |
+          kubectl apply -f k8s/
+
+    </pre>
   </div>
   <hr/>
 </body>
