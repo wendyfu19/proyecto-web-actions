@@ -3,37 +3,38 @@ name: CI-CD Docker Web
 on:
   push:
     branches: [ "main" ]
-  pull_request:
 
 jobs:
   build-test-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout del código
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      # ---- Build ----
-      - name: Construir imagen Docker
+      - name: Obtener versión desde release-please
+        id: get_version
         run: |
-          docker build -t miweb:latest .
+          VERSION=$(git describe --tags --abbrev=0 || echo "latest")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      # ---- Test ----
-      - name: Ejecutar tests
+      - name: Build imagen
         run: |
-          chmod +x tests/01_test.sh
-          ./tests/01_test.sh
+          docker build -t miweb:${{ steps.get_version.outputs.version }} .
 
-      # ---- Login Docker Hub ----
-      - name: Login a DockerHub
+      - name: Test
+        run: |
+          chmod +x tests/test_dummy.sh
+          ./tests/test_dummy.sh
+
+      - name: Login DockerHub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # ---- Tag + Push ----
-      - name: Subir imagen a Docker Hub
+      - name: Push imagen
         run: |
-          IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/miweb:latest"
-          docker tag miweb:latest $IMAGE_NAME
-          docker push $IMAGE_NAME
+          IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/miweb:${{ steps.get_version.outputs.version }}"
+          docker tag miweb:${{ steps.get_version.outputs.version }} $IMAGE
+          docker push $IMAGE
