@@ -15,8 +15,8 @@ jobs:
       - name: Obtener versión automática
         id: get_version
         run: |
-          VERSION=$(cat version.txt)
           VERSION="v0.0.4"
+          VERSION=$(cat version.txt)
           echo "$VERSION" > version.txt
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Versión generada: $VERSION"
