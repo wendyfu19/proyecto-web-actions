@@ -21,8 +21,6 @@ jobs:
       # ---- Test ----
       - name: Ejecutar tests
         run: |
-          # chmod +x tests/test_dummy.sh
-          # ./tests/test_dummy.sh
           chmod +x tests/01_test.sh
           ./tests/01_test.sh
 
