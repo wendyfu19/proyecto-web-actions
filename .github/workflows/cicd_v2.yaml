@@ -22,7 +22,8 @@ jobs:
       - name: Ejecutar tests
         run: |
           chmod +x tests/test_dummy.sh
-          ./tests/test_dummy.sh
+          # ./tests/test_dummy.sh
+          ./tests/01_test.sh
 
       # ---- Login Docker Hub ----
       - name: Login a DockerHub
