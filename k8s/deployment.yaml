@@ -15,5 +15,6 @@ spec:
       containers:
         - name: miweb
           image: USER_DOCKERHUB/miweb:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
