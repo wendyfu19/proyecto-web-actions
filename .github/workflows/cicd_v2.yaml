@@ -12,11 +12,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Obtener versión desde release-please
+      - name: Obtener versión automática
         id: get_version
         run: |
-          VERSION=$(git describe --tags --abbrev=0 || echo "latest")
+          VERSION="v0.0.0-$(date +%Y%m%d%H%M%S)-${GITHUB_SHA::7}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Versión generada: $VERSION"
 
       - name: Build imagen
         run: |
@@ -38,3 +39,6 @@ jobs:
           IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/miweb:${{ steps.get_version.outputs.version }}"
           docker tag miweb:${{ steps.get_version.outputs.version }} $IMAGE
           docker push $IMAGE
+
+      - name: Set output version
+        run: echo "version=${{ steps.get_version.outputs.version }}" >> $GITHUB_OUTPUT

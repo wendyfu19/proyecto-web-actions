@@ -19,15 +19,13 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
 
-      - name: Obtener versión
-        id: version
-        run: |
-          VERSION=$(git describe --tags --abbrev=0 || echo "latest")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
       - name: Reemplazar imagen en deployment
         run: |
-          sed -i "s|USER_DOCKERHUB/miweb:latest|${{ secrets.DOCKERHUB_USERNAME }}/miweb:${{ steps.version.outputs.version }}|g" k8s/deployment.yaml
+          VERSION="${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_commit.id || 'latest' }}"
+          # Alternativa más segura: pasar versión como output desde el workflow CI
+          VERSION="${{ github.event.workflow_run.outputs.version }}"
+          echo "Usando version: $VERSION"
+          sed -i "s|USER_DOCKERHUB/miweb:latest|${{ secrets.DOCKERHUB_USERNAME }}/miweb:$VERSION|g" k8s/deployment.yaml
 
       - name: Aplicar Manifiestos
         run: |
