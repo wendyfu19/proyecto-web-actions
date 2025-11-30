@@ -15,6 +15,6 @@ spec:
       containers:
         - name: miweb
           image: __IMAGE_PLACEHOLDER__
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
