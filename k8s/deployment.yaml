@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: miweb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: miweb
+  template:
+    metadata:
+      labels:
+        app: miweb
+    spec:
+      containers:
+        - name: miweb
+          image: USER_DOCKERHUB/miweb:latest
+          ports:
+            - containerPort: 80
