@@ -23,7 +23,7 @@ jobs:
         run: |
           VERSION="${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_commit.id || 'latest' }}"
           # Alternativa más segura: pasar versión como output desde el workflow CI
-          VERSION="v0.0.1"
+          VERSION="v0.0.2"
           echo "Usando version..: $VERSION"
           sed -i "s|__IMAGE_PLACEHOLDER__|${{ secrets.DOCKERHUB_USERNAME }}/miweb:$VERSION|g" k8s/deployment.yaml
 
