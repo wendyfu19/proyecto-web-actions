@@ -14,11 +14,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Descargar versión generada en CI
-        uses: actions/download-artifact@v4
-        with:
-          name: build-version
-
       - name: Configurar kubectl
         run: |
           mkdir -p ~/.kube
