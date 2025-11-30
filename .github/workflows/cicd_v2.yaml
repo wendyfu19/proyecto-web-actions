@@ -15,7 +15,7 @@ jobs:
       - name: Obtener versión automática
         id: get_version
         run: |
-          VERSION="v0.0.0-$(date +%Y%m%d%H%M%S)-${GITHUB_SHA::7}"
+          VERSION="v0.0.0"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Versión generada: $VERSION"
 
