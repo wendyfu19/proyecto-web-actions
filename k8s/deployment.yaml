@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: miweb
-          image: USER_DOCKERHUB/miweb:latest   # será reemplazado por la versión real
+          image: USER_DOCKERHUB/miweb:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
