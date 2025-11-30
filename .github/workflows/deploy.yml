@@ -14,6 +14,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Descargar versión generada en CI
+        uses: actions/download-artifact@v4
+        with:
+          name: build-version
+
       - name: Configurar kubectl
         run: |
           mkdir -p ~/.kube
@@ -22,6 +27,7 @@ jobs:
       - name: Reemplazar imagen en deployment
         run: |
           VERSION="${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_commit.id || 'latest' }}"
+          VERSION=$(cat version.txt)
           # Alternativa más segura: pasar versión como output desde el workflow CI
           VERSION="v0.0.2"
           echo "Usando version..: $VERSION"

@@ -15,7 +15,8 @@ jobs:
       - name: Obtener versión automática
         id: get_version
         run: |
-          VERSION="v0.0.2"
+          VERSION="v0.0.4"
+          echo "$VERSION" > version.txt
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Versión generada: $VERSION"
 
@@ -42,3 +43,9 @@ jobs:
 
       - name: Set output version
         run: echo "version=${{ steps.get_version.outputs.version }}" >> $GITHUB_OUTPUT
+
+      - name: Guardar versión como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-version
+          path: version.txt
