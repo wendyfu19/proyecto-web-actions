@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: miweb
-          image: marceloalejoc/miweb:
+          image: marceloalejoc/miweb:v0.0.8
           imagePullPolicy: Always
           ports:
             - containerPort: 80
