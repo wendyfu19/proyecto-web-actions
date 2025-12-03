@@ -73,12 +73,12 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
       
       - name: Push to DockerHub
         run: |
-          IMAGE_TAG="${{ secrets.DOCKERHUB_USERNAME }}/miweb:${{ needs.build.outputs.version }}"
+          IMAGE_TAG="${{ secrets.DOCKER_USERNAME }}/miweb:${{ needs.build.outputs.version }}"
           docker tag miweb:${{ needs.build.outputs.version }} $IMAGE_TAG
           docker push $IMAGE_TAG
           echo "✅ Image published: $IMAGE_TAG"
