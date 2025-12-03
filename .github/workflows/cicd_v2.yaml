@@ -1,52 +1,84 @@
-name: CI-CD Docker Web
+name: CI/CD Docker Web
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-  build-test-push:
+  build:
+    name: Build Pipeline
     runs-on: ubuntu-latest
-
+    
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Obtener versión automática
+      
+      - name: Get version
         id: get_version
         run: |
-          VERSION="v0.0.4"
-          VERSION=$(cat version.txt)
-          echo "$VERSION" > version.txt
+          # Usar la versión del archivo o generar una
+          if [ -f version.txt ]; then
+            VERSION=$(cat version.txt)
+          else
+            VERSION="v0.0.1"
+          fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Versión generada: $VERSION"
-
-      - name: Build imagen
+          echo "Build version: $VERSION"
+      
+      - name: Build Docker image
         run: |
           docker build -t miweb:${{ steps.get_version.outputs.version }} .
+          echo "✅ Image built: miweb:${{ steps.get_version.outputs.version }}"
 
-      - name: Test
+  test:
+    name: Test Pipeline
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Build image for testing
+        run: |
+          echo "Testing version: ${{ needs.build.outputs.version }}"
+          docker build -t miweb:${{ needs.build.outputs.version }} .
+      
+      - name: Run tests
         run: |
           chmod +x tests/01_test.sh
           ./tests/01_test.sh
+      
+      - name: Log test results
+        run: |
+          echo "✅ Tests passed for version: ${{ needs.build.outputs.version }}"
 
-      - name: Login DockerHub
+  publish:
+    name: Publish Pipeline
+    runs-on: ubuntu-latest
+    needs: [build, test]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Build final image
+        run: |
+          echo "Publishing version: ${{ needs.build.outputs.version }}"
+          docker build -t miweb:${{ needs.build.outputs.version }} .
+      
+      - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Push imagen
+      
+      - name: Push to DockerHub
         run: |
-          IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/miweb:${{ steps.get_version.outputs.version }}"
-          docker tag miweb:${{ steps.get_version.outputs.version }} $IMAGE
-          docker push $IMAGE
-
-      - name: Set output version
-        run: echo "version=${{ steps.get_version.outputs.version }}" >> $GITHUB_OUTPUT
-
-      - name: Guardar versión como artefacto
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-version
-          path: version.txt
+          IMAGE_TAG="${{ secrets.DOCKERHUB_USERNAME }}/miweb:${{ needs.build.outputs.version }}"
+          docker tag miweb:${{ needs.build.outputs.version }} $IMAGE_TAG
+          docker push $IMAGE_TAG
+          echo "✅ Image published: $IMAGE_TAG"
